@@ -1,9 +1,11 @@
+import os
+from dotenv import load_dotenv
+load_dotenv(os.path.join(os.path.dirname(__file__), '..', '.env'))
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 from routers import streaming, embeddings, employees, attendance, auth
 import logging
-import os
 
 # Logging setup
 logging.basicConfig(level=logging.INFO)

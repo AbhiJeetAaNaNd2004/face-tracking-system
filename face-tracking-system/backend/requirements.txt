@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+python-dotenv
+pydantic
+sqlalchemy
+psycopg2-binary
+bcrypt
+PyJWT
+numpy
+opencv-python
