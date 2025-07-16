@@ -4,33 +4,29 @@ from fastapi.concurrency import run_in_threadpool
 from core.face_enroller import FaceEnroller
 from core.fts_system import FaceTrackingPipeline
 from pydantic import BaseModel
+from utils.security import verify_token as verify_jwt_token
 from datetime import datetime
 import numpy as np
 import cv2
 import logging
 import os
-import jwt
 
 # Setup logging
 logger = logging.getLogger(__name__)
 
 # Security setup
-SECRET_KEY = os.getenv("SECRET_KEY", "insecure-default")
-ALGORITHM = "HS256"
 security = HTTPBearer()
 
 # JWT Verification & Role Control
 def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    try:
-        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        if payload.get("status") != "active":
-            raise HTTPException(status_code=403, detail="Account suspended or inactive")
-        return payload
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid authentication credentials")
-
+    """Verify JWT token for embeddings access."""
+    payload = verify_jwt_token(credentials.credentials)
+    if payload.get("status") != "active":
+        raise HTTPException(status_code=403, detail="Account suspended or inactive")
+    return payload
 
 def require_admin(token_data=Depends(verify_token)):
+    """Require admin role for embeddings management."""
     if token_data.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Admin privileges required")
     return token_data

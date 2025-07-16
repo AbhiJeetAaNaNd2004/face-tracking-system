@@ -3,11 +3,10 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from db.db_manager import DatabaseManager
 from db.db_models import User
-import bcrypt
-import jwt
 import logging
 import os
 from datetime import datetime, timedelta
+from utils.security import hash_password, verify_password, create_access_token, verify_token as verify_jwt_token
 
 logger = logging.getLogger(__name__)
 
@@ -48,26 +47,12 @@ class MessageResponse(BaseModel):
 
 # Helper Functions
 
-def create_access_token(data: dict):
-    to_encode = data.copy()
-    expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-    return encoded_jwt
-
-
 def verify_token(credentials: HTTPAuthorizationCredentials = Depends(security)):
-    try:
-        payload = jwt.decode(credentials.credentials, SECRET_KEY, algorithms=[ALGORITHM])
-        if payload.get("status") != "active":
-            raise HTTPException(status_code=403, detail="Account inactive or suspended")
-        return payload  # includes username, role, status
-    except jwt.PyJWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid authentication credentials",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
+    """Verify JWT token and return payload."""
+    payload = verify_jwt_token(credentials.credentials)
+    if payload.get("status") != "active":
+        raise HTTPException(status_code=403, detail="Account inactive or suspended")
+    return payload
 
 
 # API Endpoints
@@ -84,7 +69,7 @@ def login(login_request: LoginRequest, db: DatabaseManager = Depends(get_db_mana
     if user.status != "active":
         raise HTTPException(status_code=403, detail="Account inactive or suspended")
 
-    if not bcrypt.checkpw(login_request.password.encode(), user.password_hash.encode()):
+    if not verify_password(login_request.password, user.password_hash):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Incorrect username or password"
