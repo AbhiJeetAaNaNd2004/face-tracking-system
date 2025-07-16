@@ -4,6 +4,7 @@ from fastapi.concurrency import run_in_threadpool
 from core.face_enroller import FaceEnroller
 from core.fts_system import FaceTrackingPipeline
 from pydantic import BaseModel
+from datetime import datetime
 import numpy as np
 import cv2
 import logging
