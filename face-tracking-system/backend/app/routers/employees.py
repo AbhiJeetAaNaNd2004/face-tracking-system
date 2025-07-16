@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, Depends
 from db.db_manager import DatabaseManager
-from routers.auth import verify_token
+from .auth import verify_token
 from pydantic import BaseModel
 from typing import List, Optional
 import logging

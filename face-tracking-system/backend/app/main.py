@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
-from routers import streaming, embeddings, employees, attendance, auth
+# Import routers using explicit package path to ensure proper resolution
+from app.routers import streaming, embeddings, employees, attendance, auth
 import logging
 import os
 

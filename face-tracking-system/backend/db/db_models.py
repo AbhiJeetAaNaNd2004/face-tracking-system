@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, DateTime, Float, Boolean, Text, ForeignKey, LargeBinary, JSON
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
-from db_config import Base
+from .db_config import Base
 import datetime
 
 class Employee(Base):

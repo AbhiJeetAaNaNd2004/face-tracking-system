@@ -7,7 +7,7 @@ from typing import List, Union, Optional
 from insightface.app import FaceAnalysis
 from backend.db.db_manager import DatabaseManager
 from backend.db.db_models import FaceEmbedding
-from fts_system import reload_embeddings_and_rebuild_index
+from .fts_system import reload_embeddings_and_rebuild_index  # type: ignore
 
 class FaceEnrollmentError(Exception):
     pass
